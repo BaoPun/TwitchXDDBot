@@ -244,36 +244,7 @@ function calculateTime(oldTime){
         return `${days} day(s), ${hours} hour(s), ${minutes} minute(s), and ${seconds} second(s).`;
     return `${hours} hour(s), ${minutes} minute(s), and ${seconds} second(s).`;
 }
-/*
-// Function that calculates how long xdd counter has been counting for, since August 1st, 2024
-function calculateBotDuration(){
-    let time = (new Date().getTime()) - (new Date('August 1, 2024 00:00:00').getTime());
 
-    // Time is in milliseconds; we want to split this into hours, minutes, and seconds.
-    let days = Math.floor((time / 1000 / 60 / 60 / 24));        // ms => 1 s / 1000 ms * 1 min / 60 s * 1 hr / 60 min * 1 day / 24 hr;  
-    let hours = Math.floor((time / 1000 / 60 / 60) % 24);       // ms => 1 s / 1000 ms * 1 min / 60 s * 1 hr / 60 min;                  24 hours in 1 day
-    let minutes = Math.floor((time / 1000 / 60) % 60);          // ms => 1 s / 1000 ms * 1 min / 60 s;                                  60 minutes in 1 hr
-    let seconds = Math.floor((time / 1000) % 60);               // ms => 1 s / 1000 ms;                                                 60 seconds in 1 minute
-    
-    // Return a string representation of the split hours, minutes, seconds
-    return `${days} day(s), ${hours} hour(s), ${minutes} minute(s), and ${seconds} second(s).`;
-}
-
-
-// Function that calculates the uptime of the bot - in hours, minutes, and seconds.
-function calculateUpTime(){
-    // New calculated time will always be later than the uptime.
-    let time = (new Date().getTime()) - uptime;
-    
-    // Time is in milliseconds; we want to split this into hours, minutes, and seconds.
-    let hours = Math.floor((time / 1000 / 60 / 60) % 24);       // ms => 1 s / 1000 ms * 1 min / 60 s * 1 hr / 60 min;  24 hours in 1 day
-    let minutes = Math.floor((time / 1000 / 60) % 60);          // ms => 1 s / 1000 ms * 1 min / 60 s;                  60 minutes in 1 hr
-    let seconds = Math.floor((time / 1000) % 60);               // ms => 1 s / 1000 ms;                                 60 seconds in 1 minute
-    
-    // Return a string representation of the split hours, minutes, seconds
-    return `${hours} hour(s), ${minutes} minute(s), and ${seconds} second(s).`;
-}
-*/
 // Function to determine the number of times a message matches a regular expression with global search
 function regexCountInMessage(message, regex){
     return (message.match(regex) || []).length;
