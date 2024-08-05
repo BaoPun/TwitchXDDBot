@@ -122,10 +122,10 @@ function onMessageHandler (target, context, msg, self) {
         }
     }
 
-    // Typing !bottime will display how long the bot has been online for
-    else if(message == '!bottime'){
+    // Typing !time will display how long the bot has been online for
+    else if(message == '!time'){
         if(isOffCooldown(1)){
-            client.say(target, `Elrato Bot has been online for ${calculateUpTime()}`);
+            client.say(target, `Elrato Bot has been online for ${calculateTime(uptime)}`);
             console.log('timer');
         }
     }
@@ -133,7 +133,7 @@ function onMessageHandler (target, context, msg, self) {
     // Typing !help will display all possible commands to use
     else if(message == '!help'){
         if(isOffCooldown(2)){
-            client.say(target, 'List of possible commands: !xdd, !bottime, !save.  Each command usage has a 60 second cooldown.');
+            client.say(target, 'List of possible commands: !xdd, !time, !save, !botduration.  Each command usage has a 60 second cooldown.');
             console.log('help');
         }
     }
@@ -143,6 +143,14 @@ function onMessageHandler (target, context, msg, self) {
         if(isOffCooldown(3)){
             writeXddCounter(counter, target, true);
             console.log('Save');
+        }
+    }
+
+    // Typing !botduration will tell you how long the counter has been tracking the xdd counter.
+    else if(message == '!botduration'){
+        if(isOffCooldown(4)){
+            client.say(target, `The xdd counter has been counting for ${calculateTime(new Date('August 1, 2024 00:00:00').getTime())}`);
+            console.log('Duration');
         }
     }
 
@@ -221,6 +229,36 @@ async function checkStreamerLive(streamer){
     }
 }
 
+// Function to calculate time elapsed from current timestamp
+function calculateTime(oldTime){
+    let time = (new Date().getTime()) - oldTime;
+
+    // Time is in milliseconds; we want to split this into hours, minutes, and seconds.
+    let days = Math.floor((time / 1000 / 60 / 60 / 24));
+    let hours = Math.floor((time / 1000 / 60 / 60) % 24);       // ms => 1 s / 1000 ms * 1 min / 60 s * 1 hr / 60 min;  24 hours in 1 day
+    let minutes = Math.floor((time / 1000 / 60) % 60);          // ms => 1 s / 1000 ms * 1 min / 60 s;                  60 minutes in 1 hr
+    let seconds = Math.floor((time / 1000) % 60);               // ms => 1 s / 1000 ms;                                 60 seconds in 1 minute
+    
+    // Return a string representation of the split hours, minutes, seconds 
+    if(days > 0)
+        return `${days} day(s), ${hours} hour(s), ${minutes} minute(s), and ${seconds} second(s).`;
+    return `${hours} hour(s), ${minutes} minute(s), and ${seconds} second(s).`;
+}
+/*
+// Function that calculates how long xdd counter has been counting for, since August 1st, 2024
+function calculateBotDuration(){
+    let time = (new Date().getTime()) - (new Date('August 1, 2024 00:00:00').getTime());
+
+    // Time is in milliseconds; we want to split this into hours, minutes, and seconds.
+    let days = Math.floor((time / 1000 / 60 / 60 / 24));        // ms => 1 s / 1000 ms * 1 min / 60 s * 1 hr / 60 min * 1 day / 24 hr;  
+    let hours = Math.floor((time / 1000 / 60 / 60) % 24);       // ms => 1 s / 1000 ms * 1 min / 60 s * 1 hr / 60 min;                  24 hours in 1 day
+    let minutes = Math.floor((time / 1000 / 60) % 60);          // ms => 1 s / 1000 ms * 1 min / 60 s;                                  60 minutes in 1 hr
+    let seconds = Math.floor((time / 1000) % 60);               // ms => 1 s / 1000 ms;                                                 60 seconds in 1 minute
+    
+    // Return a string representation of the split hours, minutes, seconds
+    return `${days} day(s), ${hours} hour(s), ${minutes} minute(s), and ${seconds} second(s).`;
+}
+
 
 // Function that calculates the uptime of the bot - in hours, minutes, and seconds.
 function calculateUpTime(){
@@ -235,7 +273,7 @@ function calculateUpTime(){
     // Return a string representation of the split hours, minutes, seconds
     return `${hours} hour(s), ${minutes} minute(s), and ${seconds} second(s).`;
 }
-
+*/
 // Function to determine the number of times a message matches a regular expression with global search
 function regexCountInMessage(message, regex){
     return (message.match(regex) || []).length;
