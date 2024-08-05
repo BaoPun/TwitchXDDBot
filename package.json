@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "tmi.js": "^1.8.5"
+  },
+  "name": "radahn",
+  "version": "1.0.0",
+  "description": "Creating Radahn command",
+  "main": "bot.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bao Phung",
+  "license": "ISC",
+  "type": "module"
+}
