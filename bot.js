@@ -17,6 +17,12 @@ var counter = 0;
 // Add cooldowns to each individual command to prevent spamming (60 seconds for now).
 var cooldown = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
 
+// A flag to indicate whether the desired broadcaster is online or offline.
+// If online, process xdd commands
+// Else, do not process any commands
+// By default, set to True
+var is_online = true;
+
 
 // Define configuration options
 const opts = {
@@ -75,6 +81,10 @@ function onConnectedHandler (addr, port) {
 
     // Set an asynchronous timer to print an automated message every 5 minutes.
     // In the offline scenario, CD must be shorter there than here.  5 minutes here vs 1.5 minutes there. 
+    // Check if the streamer is live right in the first 5 seconds of the bot being active.  
+    setTimeout(async () => {
+        checkStreamerLive(client.getOptions().channels[0].substring(1));
+    }, 1000 * 10);
     setInterval(async () => {
         checkStreamerLive(client.getOptions().channels[0].substring(1));
     }, 1000 * 300);
@@ -89,9 +99,7 @@ function onMessageHandler (target, context, msg, self) {
     // Remove whitespace from chat message
     const message = msg.trim();
 
-    // If the command is known, let's execute it
-
-    // Only myself and the broadcaster may close the bot.
+    // Only myself and the broadcaster may close the bot.  Can process this even when broadcaster is offline.
     if(message == '!exit' && (context['username'] == 'icant_kekw' || context['username'] == target.substring(1))){
         client.say(target, 'Elrato Bot is now offline.');
         console.log(`final xdd counter = ${counter}`);
@@ -107,56 +115,60 @@ function onMessageHandler (target, context, msg, self) {
         process.exit(0);
     }
 
-    // xdd and its other variants
-    // Per streamer request, only count xdd itself for now.
-    /*if((commandName in xddArray || /xdx/.test(commandName) || /xdd/i.test(commandName) || /ddx/.test(commandName) || /ppx/.test(commandName) || /xpp/.test(commandName) ||  /xtd/.test(commandName))  && !/!xdd/i.test(commandName)){
-        ++counter[1];
-    }*/
-    
-    // Typing !xdd will display the # of xdd messages
-    else if(message == '!xdd'){
-        if(isOffCooldown(0)){
-            // To see the xdd counter, you must type !xdd
-            client.say(target, `xdd was found ${counter} time(s) in this stream.`);
-            console.log('xdd counter');
-        }
-    }
+    // Only process commands as long as the broadcaster is live
+    if(is_online){
 
-    // Typing !time will display how long the bot has been online for
-    else if(message == '!time'){
-        if(isOffCooldown(1)){
-            client.say(target, `Elrato Bot has been online for ${calculateTime(uptime)}`);
-            console.log('timer');
+        // xdd and its other variants
+        // Per streamer request, only count xdd itself for now.
+        /*if((commandName in xddArray || /xdx/.test(commandName) || /xdd/i.test(commandName) || /ddx/.test(commandName) || /ppx/.test(commandName) || /xpp/.test(commandName) ||  /xtd/.test(commandName))  && !/!xdd/i.test(commandName)){
+            ++counter[1];
+        }*/
+        
+        // Typing !xdd will display the # of xdd messages
+        if(message == '!xdd'){
+            if(isOffCooldown(0)){
+                // To see the xdd counter, you must type !xdd
+                client.say(target, `xdd was found ${counter} time(s) in this stream.`);
+                console.log('xdd counter');
+            }
         }
-    }
 
-    // Typing !help will display all possible commands to use
-    else if(message == '!help'){
-        if(isOffCooldown(2)){
-            client.say(target, 'List of possible commands: !xdd, !time, !save, !botduration.  Each command usage has a 60 second cooldown.');
-            console.log('help');
+        // Typing !time will display how long the bot has been online for
+        else if(message == '!bottime'){
+            if(isOffCooldown(1)){
+                client.say(target, `Elrato Bot has been online for ${calculateTime(uptime)}`);
+                console.log('timer');
+            }
         }
-    }
 
-    // Typing !save will save the current counter
-    else if(message == '!save'){
-        if(isOffCooldown(3)){
-            writeXddCounter(counter, target, true);
-            console.log('Save');
+        // Typing !help will display all possible commands to use
+        else if(message == '!help'){
+            if(isOffCooldown(2)){
+                client.say(target, 'List of possible commands: !xdd, !bottime, !save, !botduration.  Each command usage has a 60 second cooldown.');
+                console.log('help');
+            }
         }
-    }
 
-    // Typing !botduration will tell you how long the counter has been tracking the xdd counter.
-    else if(message == '!botduration'){
-        if(isOffCooldown(4)){
-            client.say(target, `The xdd counter has been counting for ${calculateTime(new Date('August 1, 2024 00:00:00').getTime())}`);
-            console.log('Duration');
+        // Typing !save will save the current counter
+        else if(message == '!save'){
+            if(isOffCooldown(3)){
+                writeXddCounter(counter, target, true);
+                console.log('Save');
+            }
         }
-    }
 
-    // For all other non-commands, count the number of sally and xdd (and plink and showmaker) in the sent message.
-    else{
-        counter += regexCountInMessage(message, /((?<![\w\d])xdd)( |$)/g);
+        // Typing !botduration will tell you how long the counter has been tracking the xdd counter.
+        else if(message == '!botduration'){
+            if(isOffCooldown(4)){
+                client.say(target, `The xdd counter has been counting for ${calculateTime(new Date('August 1, 2024 00:00:00').getTime())}`);
+                console.log('Duration');
+            }
+        }
+
+        // For all other non-commands, count the number of sally and xdd (and plink and showmaker) in the sent message.
+        else{
+            counter += regexCountInMessage(message, /((?<![\w\d])xdd)( |$)/g);
+        }
     }
 
     // Slots (not allowed to be used)
@@ -205,12 +217,21 @@ async function checkStreamerLive(streamer){
         // If streamer is live, then display the message to use the !help command
         if(source.includes('isLiveBroadcast')){
             client.say(`#${streamer}`, 'Type !help to view all possible commands.  Made by icant_kekw.');
+            is_online = true;
         }
 
         // Otherwise, give a warning to chat that the bot will be deactivated in the next 90 seconds.
         // IMPERATIVE THAT CD HERE IS SHORTER THAN CD IN SETINTERVAL
         else{
-            client.say(`#${streamer}`, `${streamer} is not live, deactivating bot in 90 seconds.`);
+            // Display this message if the broadcaster recently stopped streaming.
+            if(is_online)
+                client.say(`#${streamer}`, `${streamer} is not live, disabling bot commands until streamer is online.`);
+
+            // Set the online flag to false
+            is_online = false;
+            console.log('Bot cannot process commands...');
+
+            /*
             setTimeout(async () => {
                 client.say(`#${streamer}`, 'Elrato Bot is now offline.');
                 console.log(`final xdd counter = ${counter}`);
@@ -222,6 +243,7 @@ async function checkStreamerLive(streamer){
                 // Finally, exit the bot
                 process.exit(0);
             }, 1000 * 90);
+            */
         }
     }
     catch(error){
