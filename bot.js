@@ -84,7 +84,7 @@ function onConnectedHandler (addr, port) {
     // Check if the streamer is live right in the first 5 seconds of the bot being active.  
     setTimeout(async () => {
         checkStreamerLive(client.getOptions().channels[0].substring(1));
-    }, 1000 * 10);
+    }, 1000 * 5);
     setInterval(async () => {
         checkStreamerLive(client.getOptions().channels[0].substring(1));
     }, 1000 * 300);
@@ -224,11 +224,13 @@ async function checkStreamerLive(streamer){
         // IMPERATIVE THAT CD HERE IS SHORTER THAN CD IN SETINTERVAL
         else{
             // Display this message if the broadcaster recently stopped streaming.
-            if(is_online)
+            // Also change the flag to false
+            if(is_online){
                 client.say(`#${streamer}`, `${streamer} is not live, disabling bot commands until streamer is online.`);
+                is_online = false;
+            }
 
-            // Set the online flag to false
-            is_online = false;
+            // Show console output to keep track of each 5 minute interval
             console.log('Bot cannot process commands...');
 
             /*
